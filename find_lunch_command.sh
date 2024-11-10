@@ -46,6 +46,20 @@ sed_command=$(echo "$LINEAGE_BUILD_COMMAND" | grep -o "sed -e 's/[^']*'")
 
 # Extract the pattern inside the 's/^' and '//g' delimiters
 pattern=$(echo "$sed_command" | sed -e 's/s\/\^//;s/\/.*//' | sed 's|sed -e ||g' | sed "s|'||g")
+
+else
+
+sed_command=$(grep 'echo "$TARGET_PRODUCT"' build/make/envsetup.sh)
+
+# Delete the part before "sed"
+sed_part="${sed_command#*sed}"
+
+# Extract the part surrounded by "s/" and "_"
+pattern=$(echo "$sed_part" | grep -oP '(?<=s/)[a-z\_]*(?=[^_]*_)')
+
+item1="lunch "$pattern""$DEVICE_NAME"-"$BUILD_ID"-user"
+echo found lunch command : "$item1"
+exit
 fi
 
 ########################################################################
