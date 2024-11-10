@@ -30,11 +30,14 @@ else
 fi
 
 ########################################################################
-# Extract the variable name from the target line in envsetup.sh
+# Extract the variable name from the target line in config.mk and envsetup.sh
+# Check if $Target_BUILD is exported
+# If $Target_BUILD is not exported, sepolicy and BoardConfig＊.mk cannot be included correctly in config.mk
 ########################################################################
-PreTarget_BUILD=$(grep -E "export [a-zA-Z]*_BUILD$" build/make/envsetup.sh)
+Target_BUILD=$(find build/make/core -maxdepth 1 -name config.mk | xargs grep "ifneq (\$([a-zA-Z]*_BUILD)" -rhs | sed "s/ifneq (\$(//g" | sed "s/),)//g" | uniq)
+
+PreTarget_BUILD=$(grep -E "export $Target_BUILD" build/make/envsetup.sh)
 if [ -n "$PreTarget_BUILD" ]; then
-Target_BUILD=$(grep -E "export [a-zA-Z]*_BUILD$" build/make/envsetup.sh | awk '{print $2}' | sed 's/export //')
 
 # Given sed command with an unknown pattern
 LINEAGE_BUILD_COMMAND=$(grep -E $Target_BUILD= build/make/envsetup.sh |grep sed)
@@ -43,8 +46,6 @@ sed_command=$(echo "$LINEAGE_BUILD_COMMAND" | grep -o "sed -e 's/[^']*'")
 
 # Extract the pattern inside the 's/^' and '//g' delimiters
 pattern=$(echo "$sed_command" | sed -e 's/s\/\^//;s/\/.*//' | sed 's|sed -e ||g' | sed "s|'||g")
-else
-pattern=$(cat vendor/*/build/envsetup.sh | grep "lunch [a-z]*_" | sed 's/[ ]*lunch//g' | sed  's/^ //g' | sed 's/_$target-$aosp_target_release-$variant//g')_
 fi
 
 ########################################################################
