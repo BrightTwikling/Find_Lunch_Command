@@ -66,6 +66,16 @@ selected=0
 # Function to display the menu with the current selection blinking
 display_menu() {
   clear
+  echo BUILD_ID=$BUILD_ID
+  if [[ "$BUILD_ID" == "" ]]; then
+    text="BUILD_ID is blank so $item2 is probably better"
+    highlight="$item2"
+    # ANSI escape codes in red
+    RED='\033[0;31m'
+    NC='\033[0m' # Reset color
+    # Only the elephant part is displayed in red
+    echo -e "${text//$highlight/${RED}${highlight}${NC}}"
+  fi
   echo "Use up and down keys to select"
   echo "====="
   for i in "${!items[@]}"; do
