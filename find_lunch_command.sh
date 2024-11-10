@@ -21,17 +21,12 @@ if [ $? -ne 0 ] ; then
   echo "ERROR: The directory \"${PWD}\" is not the top level of a repository for Android"
   exit 1
 else
-    if [ -r "${RELEASE_CONFIG_MAP_FILE}" ] ; then
-        BUILD_ID="$( grep declare-release-config "${RELEASE_CONFIG_MAP_FILE}"  | tr "," " " | awk '{ print $3}' )"
-        if [ -z "$BUILD_ID" ]; then
-           str=$(find vendor/*/release/release_configs -name "*.textproto") 
-           BUILD_ID=$(basename $str .textproto)
+    for each_map_file in "${RELEASE_CONFIG_MAP_FILES[@]}"; do
+        BUILD_ID="$( grep declare-release-config "${each_map_file}"  | tr "," " " | awk '{ print $3}' )"
+        if [[ "$BUILD_ID" == "\$(TARGET_RELEASE)" ]]; then
+            BUILD_ID=$(cat $each_map_file | grep "TARGET_RELEASE :=" | sed "s/TARGET_RELEASE := //g" )
         fi
-        if [ -z "$BUILD_ID" ]; then
-           str=$(find build/release_configs -name "*.textproto") 
-           BUILD_ID=$(basename $str .textproto)
-        fi
-    fi
+    done
 fi
 
 ########################################################################
