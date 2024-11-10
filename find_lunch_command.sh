@@ -57,7 +57,12 @@ item2="lunch "$pattern""$DEVICE_NAME"-user"
 # List of items to display
 items=("$item1" "$item2" "End")
 total_items=${#items[@]}
+
+if [[ "$BUILD_ID" == "" ]]; then
+selected=1
+else
 selected=0
+fi
 
 # Function to display the menu with the current selection blinking
 display_menu() {
