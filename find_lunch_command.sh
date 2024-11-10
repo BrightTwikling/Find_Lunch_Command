@@ -11,9 +11,7 @@ fi
 
 # new build config files
 #
-BUILD_RELEASE_DIR="build/release"
-
-RELEASE_CONFIG_MAP_FILE="${BUILD_RELEASE_DIR}/release_config_map.mk"
+RELEASE_CONFIG_MAP_FILE=$( find vendor device -name release_config_map.mk)
 
 ########################################################################
 # check if the current directory is the top level of a repository for Android
