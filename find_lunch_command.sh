@@ -19,7 +19,6 @@ RELEASE_CONFIG_MAP_FILES+=( $( find build device vendor -name release_config_map
 grep  "https://android.googlesource.com" .repo/manifests/default.xml 2>/dev/null >/dev/null
 if [ $? -ne 0 ] ; then
   echo "ERROR: The directory \"${PWD}\" is not the top level of a repository for Android"
-  THISRC=100
   exit 1
 else
     if [ -r "${RELEASE_CONFIG_MAP_FILE}" ] ; then
