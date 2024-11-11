@@ -82,6 +82,10 @@ fi
 display_menu() {
   clear
   echo BUILD_ID=$BUILD_ID
+  echo "This is list of files existing in vendor/*/build/tasks"
+  echo "==========="
+  find vendor/*/build/tasks -name "*.mk" | sed  's/vendor\/[a-z]*\/build\/tasks\///g'
+  echo "==========="
   if [[ "$BUILD_ID" == "" ]]; then
     text="BUILD_ID is blank so $item2 is probably better"
     highlight="$item2"
@@ -92,7 +96,8 @@ display_menu() {
     echo -e "${text//$highlight/${RED}${highlight}${NC}}"
   fi
   echo "Use up and down keys to select"
-  echo "====="
+  echo "After selection, build will start"
+  echo "==========="
   for i in "${!items[@]}"; do
     if [ "$i" -eq "$selected" ]; then
       tput setaf 3  # Yellow color for blinking
