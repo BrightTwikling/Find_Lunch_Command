@@ -57,9 +57,6 @@ sed_part="${sed_command#*sed}"
 # Extract the part surrounded by "s/" and "_"
 pattern=$(echo "$sed_part" | grep -oP '(?<=s/)[a-z\_]*(?=[^_]*_)')
 
-item1="lunch "$pattern""$DEVICE_NAME"-"$BUILD_ID"-user"
-echo found lunch command : "$item1"
-exit
 fi
 
 ########################################################################
