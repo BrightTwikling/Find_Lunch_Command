@@ -123,13 +123,12 @@ while true; do
     "")  # Enter key
       echo "You selected: : ${items[selected]}"
       if [[ "${items[selected]}" != "End" ]]; then
-          echo ". build/envsetup.sh"
-          eval ". build/envsetup.sh"
-          echo "${items[selected]}"
-          eval "${items[selected]}"
-          history -s "${items[selected]}"
+          Start1=". build/envsetup.sh"
+          Start2="${items[selected]}"
       fi
       break
       ;;
   esac
 done
+eval $Start1
+eval $Start2
