@@ -78,10 +78,17 @@ fi
 # Function to display the menu with the current selection blinking
 display_menu() {
   clear
+
   echo BUILD_ID=$BUILD_ID
-  echo "This is list of files existing in vendor/*/build/tasks"
+  tput setaf 1
+  caution_text="Note that the README in the manifest repository is more correct than this script."
+  printf "\e[5m%s\e[0m\n" "${caution_text}"
+  tput sgr0  # Reset attributes
+  echo
+
+  echo "This is list of commands existing in vendor/*/build/tasks"
   echo "==========="
-  find vendor/*/build/tasks -name "*.mk" | sed  's/vendor\/[a-z]*\/build\/tasks\///g'
+  find vendor/*/build/tasks -name "*.mk" | xargs grep .PHONY -hs | sed "s/\.PHONY\: //g"
   echo "==========="
   if [[ "$BUILD_ID" == "" ]]; then
     text="BUILD_ID is blank so $item2 is probably better"
