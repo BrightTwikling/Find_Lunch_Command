@@ -141,3 +141,18 @@ while true; do
 done
 eval $Start1
 eval $Start2
+
+pre_export_name=$(echo $PreTarget_BUILD | sed "s/export //g")
+echo pre_export_name=$pre_export_name
+export_name=$(eval echo $pre_export_name)
+if [[ -n "$export_name" ]]; then
+echo $pre_export_name is correctly defined by $export_name
+echo "Try to type : echo" $pre_export_name
+else
+echo $pre_export_name is not correctly defined by $DEVICE_NAME
+echo "So this script conduct $ export " $Target_BUILD=$DEVICE_NAME
+pre_export_name2="export PRODUCT_DEVICE="$DEVICE_NAME
+eval $pre_export_name2
+echo "Try to type : echo $"$Target_BUILD
+fi
+
