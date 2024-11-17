@@ -2,63 +2,69 @@
 
 BUILD_ID=""
 DEVICE_NAME=$1
-
+########################################################################
+##  Initial_check
+########################################################################
 if [ -z $1 ] ; then
   echo "ERROR: Must define device name like"
   echo "find_lunch_command.sh zenfone7"
   exit 1
 fi
 
-# new build config files
-#
-RELEASE_CONFIG_MAP_FILES+=( $( find build device vendor -name release_config_map.mk) )
-
-########################################################################
-# check if the current directory is the top level of a repository for Android
-########################################################################
 grep  "https://android.googlesource.com" .repo/manifests/default.xml 2>/dev/null >/dev/null
 if [ $? -ne 0 ] ; then
   echo "ERROR: The directory \"${PWD}\" is not the top level of a repository for Android"
   exit 1
-else
-    for each_map_file in "${RELEASE_CONFIG_MAP_FILES[@]}"; do
-        BUILD_ID="$( grep declare-release-config "${each_map_file}"  | tr "," " " | awk '{ print $3}' )"
-        if [[ "$BUILD_ID" == "\$(TARGET_RELEASE)" ]]; then
-            BUILD_ID=$(cat $each_map_file | grep "TARGET_RELEASE :=" | sed "s/TARGET_RELEASE := //g" )
-        fi
-    done
 fi
+
+########################################################################
+# new build config files
+########################################################################
+RELEASE_CONFIG_MAP_FILES+=( $( find build device vendor -name release_config_map.mk) )
+
+for each_map_file in "${RELEASE_CONFIG_MAP_FILES[@]}"; do
+    BUILD_ID="$( grep declare-release-config "${each_map_file}"  | tr "," " " | awk '{ print $3}' )"
+    if [[ "$BUILD_ID" == "\$(TARGET_RELEASE)" ]]; then
+        BUILD_ID=$(cat $each_map_file | grep "TARGET_RELEASE :=" | sed "s/TARGET_RELEASE := //g" )
+    fi
+done
 
 ########################################################################
 # Extract the variable name from the target line in config.mk and envsetup.sh
 # Check if $Target_BUILD is exported
 # If $Target_BUILD is not exported, sepolicy and BoardConfig＊.mk cannot be included correctly in config.mk
 ########################################################################
-Target_BUILD=$(find build/make/core -maxdepth 1 -name config.mk | xargs grep "ifneq (\$([a-zA-Z]*_BUILD)" -rhs | sed "s/ifneq (\$(//g" | sed "s/),)//g" | uniq)
+Target_BUILD_from_mk=$(find build/make/core -maxdepth 1 -name config.mk | xargs grep "ifneq (\$([a-zA-Z]*_BUILD)" -rhs | sed "s/ifneq (\$(//g" | sed "s/),)//g" | uniq)
+Target_BUILD_from_sh=$(find build vendor -name "envsetup.sh" | xargs grep "export $Target_BUILD"$ -hs | uniq | sed "s/[ ]*export[ ]//g" )
 
-PreTarget_BUILD=$(grep -E "export $Target_BUILD" build/make/envsetup.sh)
-if [ -n "$PreTarget_BUILD" ]; then
+Target_BUILD=($Target_BUILD_from_mk $Target_BUILD_from_sh )
+Target_BUILD=$( echo $Target_BUILD | uniq )
 
 # Given sed command with an unknown pattern
-LINEAGE_BUILD_COMMAND=$(grep -E $Target_BUILD= build/make/envsetup.sh |grep sed)
+BUILD_COMMAND=$(grep -E $Target_BUILD= build/make/envsetup.sh |grep sed)
 
-sed_command=$(echo "$LINEAGE_BUILD_COMMAND" | grep -o "sed -e 's/[^']*'")
+sed_command=$(echo "$BUILD_COMMAND" | grep -o "sed -e 's/[^']*'")
 
 # Extract the pattern inside the 's/^' and '//g' delimiters
 pattern=$(echo "$sed_command" | sed -e 's/s\/\^//;s/\/.*//' | sed 's|sed -e ||g' | sed "s|'||g")
 
-else
-
-sed_command=$(grep 'echo "$TARGET_PRODUCT"' build/make/envsetup.sh)
-
-# Delete the part before "sed"
-sed_part="${sed_command#*sed}"
-
-# Extract the part surrounded by "s/" and "_"
-pattern=$(echo "$sed_part" | grep -oP '(?<=s/)[a-z\_]*(?=[^_]*_)')
-
+if [[ -z "$pattern" ]]; then
+envsetup_scripts=( build/envsetup.sh vendor/*/build/envsetup.sh )
+    for envsetup_script in "${envsetup_scripts[@]}"; do
+        BUILD_COMMAND=$(cat $envsetup_script | grep "[ ]*$Target_BUILD=\$(" )
+        sed_command=$(echo "$BUILD_COMMAND" | grep -o "sed -e 's/[^']*'")
+        # Extract the pattern inside the 's/^' and '//g' delimiters
+        patterns=$(echo "$sed_command" | sed -e 's/s\/\^//;s/\/.*//' | sed 's|sed -e ||g' | sed "s|'||g")
+    done
+    pattern=$(echo $patterns | uniq)
 fi
+########################################################################
+# End of initial investigation
+########################################################################
 
+echo BUILD_ID=$BUILD_ID
+echo pattern=$pattern
+echo Target_BUILD=$Target_BUILD
 ########################################################################
 # Select and run the command you found
 ########################################################################
