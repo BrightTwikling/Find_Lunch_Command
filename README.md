@@ -4,11 +4,11 @@ Purpose is by checking the ROM specific parameters to make it easier to start bu
 ## 2.  Install method<br>
 ```
 $ mkdir ~/bin
-$ git clone https://github.com/BrightTwikling/My_favorite_Scripts.git
+$ git clone https://github.com/BrightTwikling/Find_Lunch_Command.git
 ```
 Add following code to ~/.bashrc
 ```
-export PATH=~/bin/My_favorite_Scripts:$PATH 
+export PATH=~/bin/Find_Lunch_Command:$PATH
 alias find_lunch_cmd='source find_lunch_command.sh'
 ```
 After adding, conduct following
