@@ -24,7 +24,7 @@ This script find  each parameter in following code: <br>
 ```
 lunch $pattern_$target-$aosp_target_release-$variant
 ```
-and conduct following code<br>
+and this script conduct following code<br>
 ```
 $  . build/envsetup.sh
 $  lunch $pattern_$target-$aosp_target_release-$variant
