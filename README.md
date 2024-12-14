@@ -1,4 +1,5 @@
 ## 1.  Purpose
+With the use of this script, the same wording can be used to start a build when starting a major roms build.<br>
 Purpose is by checking the ROM specific parameters to make it easier to start building. But note that the README in the manifest repository is more correct.<br>
 
 ## 2.  Install method<br>
