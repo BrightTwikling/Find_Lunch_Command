@@ -4,7 +4,7 @@ Purpose is by checking the ROM specific parameters to make it easier to start bu
 
 ## 2.  Install method<br>
 ```
-$ mkdir ~/bin
+$ mkdir ~/bin && cd $_
 $ git clone https://github.com/BrightTwikling/Find_Lunch_Command.git
 ```
 Add following code to ~/.bashrc
