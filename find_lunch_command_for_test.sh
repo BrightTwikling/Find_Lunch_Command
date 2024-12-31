@@ -20,12 +20,15 @@ fi
 ########################################################################
 # new build config files
 ########################################################################
-RELEASE_CONFIG_MAP_FILES+=( $( find build device vendor -name release_config_map.mk) )
+RELEASE_CONFIG_MAP_FILES+=( $( find build device vendor -name "release_config_map.*" )  )
 
 for each_map_file in "${RELEASE_CONFIG_MAP_FILES[@]}"; do
     BUILD_ID="$( grep declare-release-config "${each_map_file}"  | tr "," " " | awk '{ print $3}' )"
     if [[ "$BUILD_ID" == "\$(TARGET_RELEASE)" ]]; then
         BUILD_ID=$(cat $each_map_file | grep "TARGET_RELEASE :=" | sed "s/TARGET_RELEASE := //g" )
+    fi
+    if [[ -z "$BUILD_ID" ]]; then
+        BUILD_ID=$(grep -o 'target: *"[^"]*"' "$each_map_file" | sed -E 's/target: *"([^"]*)"/\1/')
     fi
 done
 
