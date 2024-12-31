@@ -34,10 +34,10 @@ done
 # Check if $Target_BUILD is exported
 # If $Target_BUILD is not exported, sepolicy and BoardConfig＊.mk cannot be included correctly in config.mk
 ########################################################################
-BUILD_ID_from_mk=$(find build/make/core -maxdepth 1 -name config.mk | xargs grep "ifneq (\$([a-zA-Z]*_BUILD)" -rhs | sed "s/ifneq (\$(//g" | sed "s/),)//g" | uniq)
-BUILD_ID_from_sh=$(find build vendor -name "envsetup.sh" | xargs grep "export $Target_BUILD"$ -hs | uniq | sed "s/[ ]*export[ ]//g" )
+Target_BUILD_from_mk=$(find build/make/core -maxdepth 1 -name config.mk | xargs grep "ifneq (\$([a-zA-Z]*_BUILD)" -rhs | sed "s/ifneq (\$(//g" | sed "s/),)//g" | uniq)
+Target_BUILD_from_sh=$(find build vendor -name "envsetup.sh" | xargs grep "export $Target_BUILD"$ -hs | uniq | sed "s/[ ]*export[ ]//g" )
 
-Target_BUILD=($BUILD_ID_from_mk $BUILD_ID_from_sh )
+Target_BUILD=($Target_BUILD_from_mk $Target_BUILD_from_sh )
 Target_BUILD=$( echo $Target_BUILD | uniq )
 
 # Given sed command with an unknown pattern
@@ -53,8 +53,7 @@ envsetup_scripts=( build/envsetup.sh vendor/*/build/envsetup.sh )
     for envsetup_script in "${envsetup_scripts[@]}"; do
         BUILD_COMMAND=$(cat $envsetup_script | grep "[ ]*$Target_BUILD=\$(" )
         sed_command=$(echo "$BUILD_COMMAND" | grep -o "sed -e 's/[^']*'")
-
-# Extract the pattern inside the 's/^' and '//g' delimiters
+        # Extract the pattern inside the 's/^' and '//g' delimiters
         patterns=$(echo "$sed_command" | sed -e 's/s\/\^//;s/\/.*//' | sed 's|sed -e ||g' | sed "s|'||g")
     done
     pattern=$(echo $patterns | uniq)
